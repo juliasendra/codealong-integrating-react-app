@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = "https://project-management-api-4641927fee65.herokuapp.com";
 
@@ -10,28 +11,30 @@ function CreateProjectPage() {
     const [description, setDescription] = useState("");
 
 
+    const navigate = useNavigate();
+
+
     const handleSubmit = (e) => {
 
         // prevent page reaload
         e.preventDefault();
 
         // prepare an object with the data that we send to the api
-        const newProject = {
+        const requestBody = {
             title: title,
             description: description
         }
         
         // send POST request
-        axios.post(`${API_URL}/projects`, newProject)
+        axios.post(`${API_URL}/projects`, requestBody )
             .then( response => {
-                console.log("project was created...")
-                console.log(response.data)
+                // project created, we will redirect to /pizza
+                navigate("/projects");
             })
             .catch((error) => {
                 console.log("Error creating project in the API...");
                 console.log(error);
             })
-        
     }
 
 
