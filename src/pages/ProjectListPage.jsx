@@ -1,75 +1,55 @@
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
 
 const API_URL = "https://project-management-api-4641927fee65.herokuapp.com";
 
 
-function CreateProjectPage() {
+function ProjectListPage(){
 
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
+    const [projects, setProjects] = useState([]);
 
-
-    const handleSubmit = (e) => {
-
-        // prevent page reaload
-        e.preventDefault();
-
-        // prepare an object with the data that we send to the api
-        const newProject = {
-            title: title,
-            description: description
-        }
-        
-        // send POST request
-        axios.post(`${API_URL}/projects`, newProject)
-            .then( response => {
-                console.log("project was created...")
-                console.log(response.data)
+    const getAllProjects = () => {
+        axios.get(API_URL + "/projects?_embed=tasks")
+            .then((response) => {
+                setProjects(response.data);
             })
             .catch((error) => {
-                console.log("Error creating project in the API...");
+                console.log("Error getting projects from the API...");
                 console.log(error);
             })
-        
-    }
+    };
+
+
+    useEffect(() => {
+        getAllProjects();
+    }, []);
+
 
 
     return (
-        <div className="CreateProjectPage">
-            <h3>Add Project</h3>
+        <div className="ProjectListPage">
+            <h2>List of projects:</h2>
 
-            <form onSubmit={handleSubmit}>
-                
-                <label>
-                    Title
-                    <input 
-                        type="text" 
-                        name="title" 
-                        placeholder="enter the title"
-                        required={true}
-                        value={title}
-                        onChange={(e) => { setTitle(e.target.value) }}
-                        />
-                </label>
+            <Link to="/projects/create">
+                <p>
+                    <button>Create Project</button>
+                </p>
+            </Link>
 
-                <label>
-                    Description
-                    <input 
-                        type="text" 
-                        name="description" 
-                        placeholder="short description"
-                        value={description}
-                        onChange={(e) => { setDescription(e.target.value) }}
-                        />
-                </label>
-
-
-                <button>Create Project</button>
-            </form>
+            {projects.map((project) => {
+                return (
+                    <div className="ProjectCard card" key={project.id} >
+                        <Link to={`/projects/${project.id}`}>
+                            <h3>{project.title}</h3>
+                        </Link>
+                    </div>
+                );
+            })} 
 
         </div>
     )
 }
 
-export default CreateProjectPage;
+export default ProjectListPage;
